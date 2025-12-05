@@ -8,13 +8,12 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// Add multiple target URLs here
 const TARGET_URLS = [
-    process.env.TARGET_URL_1 || 'https://teamspring23.onrender.com',
-    process.env.TARGET_URL_2 || 'https://patternbackend.onrender.com'
+    process.env.TARGET_URL_1 || 'https://teamspring23.onrender.com/api/auth',
+    process.env.TARGET_URL_2 || 'https://patternbackend.onrender.com/api/pattern'
 ];
 
-const PING_INTERVAL = 14 * 60 * 1000;
+const PING_INTERVAL = 10 * 60 * 1000;
 
 function pingTarget(targetUrl) {
     const url = new URL(targetUrl);
@@ -23,28 +22,53 @@ function pingTarget(targetUrl) {
     const now = new Date().toLocaleString();
     console.log(`[${now}] Pinging: ${targetUrl}`);
 
-    protocol.get(targetUrl, (res) => {
-        console.log(`✓ Success! ${targetUrl} - Status: ${res.statusCode}`);
-    }).on('error', (err) => {
+    const options = {
+        hostname: url.hostname,
+        port: url.port,
+        path: url.pathname,
+        method: 'GET',
+        headers: {
+            'User-Agent': 'Koyeb-Pinger/1.0',
+            'Accept': '*/*'
+        },
+        timeout: 30000 
+    };
+
+    const req = protocol.request(options, (res) => {
+        let data = '';
+        res.on('data', (chunk) => {
+            data += chunk;
+        });
+        res.on('end', () => {
+            console.log(`✓ Success! ${targetUrl} - Status: ${res.statusCode} - Response length: ${data.length} bytes`);
+        });
+    });
+
+    req.on('error', (err) => {
         console.log(`✗ Failed: ${targetUrl} - ${err.message}`);
     });
+
+    req.on('timeout', () => {
+        console.log(`⏱ Timeout: ${targetUrl} - Server took too long to respond`);
+        req.destroy();
+    });
+
+    req.end();
 }
 
 function pingAllTargets() {
     TARGET_URLS.forEach(url => pingTarget(url));
 }
 
-// Ping immediately on startup
 pingAllTargets();
 
-// Ping every 14 minutes
 setInterval(pingAllTargets, PING_INTERVAL);
 
 app.get('/', (req, res) => {
     res.json({
         status: 'running',
         targets: TARGET_URLS,
-        interval: '14 minutes',
+        interval: '10 minutes',
         nextPing: new Date(Date.now() + PING_INTERVAL).toLocaleString()
     });
 });
@@ -52,6 +76,6 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Pinger service running on port ${PORT}`);
     console.log(`📍 Targets: ${TARGET_URLS.join(', ')}`);
-    console.log(`⏰ Pinging every 14 minutes`);
+    console.log(`⏰ Pinging every 10 minutes`);
 });
 
