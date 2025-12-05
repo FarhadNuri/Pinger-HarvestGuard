@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const TARGET_URLS = [
-    process.env.TARGET_URL_1 || 'https://teamspring23.onrender.com/api/auth',
+    process.env.TARGET_URL_1 || 'https://teamspring23.onrender.com/api/buyer/farmers/search',
     process.env.TARGET_URL_2 || 'https://patternbackend.onrender.com/api/pattern'
 ];
 
@@ -31,7 +31,7 @@ function pingTarget(targetUrl) {
             'User-Agent': 'Koyeb-Pinger/1.0',
             'Accept': '*/*'
         },
-        timeout: 30000 
+        timeout: 30000
     };
 
     const req = protocol.request(options, (res) => {

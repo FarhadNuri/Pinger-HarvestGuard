@@ -5,8 +5,8 @@ primary_region = "iad"
 
 [env]
   PORT = "8080"
-  TARGET_URL_1 = "https://teamspring23.onrender.com"
-  TARGET_URL_2 = "https://patternbackend.onrender.com"
+  TARGET_URL_1 = "https://teamspring23.onrender.com/api/buyer/farmers/search"
+  TARGET_URL_2 = "https://patternbackend.onrender.com/api/pattern"
 
 [http_service]
   internal_port = 8080
