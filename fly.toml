@@ -5,8 +5,8 @@ primary_region = "iad"
 
 [env]
   PORT = "8080"
-  TARGET_URL_1 = "https://teamspring23fe.onrender.com/"
-  TARGET_URL_2 = "https://patternpage.netlify.app/"
+  TARGET_URL_1 = "https://teamspring23.onrender.com"
+  TARGET_URL_2 = "https://patternbackend.onrender.com"
 
 [http_service]
   internal_port = 8080
