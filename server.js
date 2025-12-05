@@ -8,50 +8,50 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-const TARGET_URL = process.env.TARGET_URL || 'https://teamspring23fe.onrender.com/';
+// Add multiple target URLs here
+const TARGET_URLS = [
+  process.env.TARGET_URL_1 || 'https://teamspring23fe.onrender.com/',
+  process.env.TARGET_URL_2 || 'https://patternpage.netlify.app/'
+];
 
 const PING_INTERVAL = 14 * 60 * 1000;
 
-function pingTarget() {
-
-const url = new URL(TARGET_URL);
-
- const protocol = url.protocol === 'https:' ? https : http;
-
- 
-
- const now = new Date().toLocaleString();
-
- console.log(`[${now}] Pinging: ${TARGET_URL}`);
-
- 
-
- protocol.get(TARGET_URL, (res) => {
- console.log(`✓ Success! Status: ${res.statusCode}`);
- }).on('error', (err) => {
-
-console.log(`✗ Failed: ${err.message}`);
- });
-
+function pingTarget(targetUrl) {
+  const url = new URL(targetUrl);
+  const protocol = url.protocol === 'https:' ? https : http;
+  
+  const now = new Date().toLocaleString();
+  console.log(`[${now}] Pinging: ${targetUrl}`);
+  
+  protocol.get(targetUrl, (res) => {
+    console.log(`✓ Success! ${targetUrl} - Status: ${res.statusCode}`);
+  }).on('error', (err) => {
+    console.log(`✗ Failed: ${targetUrl} - ${err.message}`);
+  });
 }
 
-pingTarget();
+function pingAllTargets() {
+  TARGET_URLS.forEach(url => pingTarget(url));
+}
 
-setInterval(pingTarget, PING_INTERVAL);
+// Ping immediately on startup
+pingAllTargets();
+
+// Ping every 14 minutes
+setInterval(pingAllTargets, PING_INTERVAL);
 
 app.get('/', (req, res) => {
- res.json({ 
- status: 'running',
- target: TARGET_URL,
- interval: '14 minutes'
- });
-
+  res.json({ 
+    status: 'running',
+    targets: TARGET_URLS,
+    interval: '14 minutes',
+    nextPing: new Date(Date.now() + PING_INTERVAL).toLocaleString()
+  });
 });
 
 app.listen(PORT, () => {
- console.log(`🚀 Pinger service running on port ${PORT}`);
- console.log(`📍 Target: ${TARGET_URL}`);
- console.log(`⏰ Pinging every 14 minutes`);
-
+  console.log(`🚀 Pinger service running on port ${PORT}`);
+  console.log(`📍 Targets: ${TARGET_URLS.join(', ')}`);
+  console.log(`⏰ Pinging every 14 minutes`);
 });
 
